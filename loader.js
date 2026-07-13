@@ -212,15 +212,18 @@ async function unlockUsing(password){
             encrypted
         );
 
-        const blob = new Blob([html], {
-    type: "text/html"
-});
+        const iframe = document.createElement("iframe");
 
-const url = URL.createObjectURL(blob);
+iframe.style.position = "fixed";
+iframe.style.inset = "0";
+iframe.style.width = "100%";
+iframe.style.height = "100%";
+iframe.style.border = "0";
 
-window.location.replace(url);
+document.body.innerHTML = "";
+document.body.appendChild(iframe);
 
-    }
+iframe.srcdoc = html;
     catch(e){
 
         localStorage.removeItem(STORAGE_KEY);
