@@ -1,48 +1,30 @@
-
 const APP = document.getElementById("app");
-
 const STORAGE_KEY = "azde_trusted_device";
-
 function showUnlockScreen() {
-
     APP.innerHTML = `
         <div class="unlock-container">
-
             <div class="unlock-card">
-
                 <h1>🔒 Azure Data Engineering Interview Guide</h1>
-
                 <p>
                     Enter your access key
                 </p>
-
                 <input
                     id="password"
                     type="password"
                     placeholder="Access Key"
                 >
-
                 <label class="remember">
-
                     <input
                         type="checkbox"
                         id="remember"
                     >
-
                     Trust this device
-
                 </label>
-
                 <button id="unlock">
-
                     Unlock
-
                 </button>
-
                 <div id="error"></div>
-
             </div>
-
         </div>
     `;
 
@@ -52,9 +34,7 @@ function showUnlockScreen() {
 }
 
 async function deriveKey(password, salt){
-
     const enc = new TextEncoder();
-
     const keyMaterial =
         await crypto.subtle.importKey(
             "raw",
@@ -89,7 +69,6 @@ async function unlock(){
         document.getElementById("password").value;
 
     try{
-
         const response =
             await fetch("index.enc");
 
@@ -176,12 +155,14 @@ async function unlock(){
 
     catch(e){
 
-        document
-            .getElementById("error")
-            .innerHTML =
-            "Invalid Access Key";
+    console.error(e);
 
-    }
+    document
+        .getElementById("error")
+        .textContent =
+        "Invalid Access Key";
+
+}
 
 }
 
@@ -206,12 +187,42 @@ async function unlock(){
 })();
 async function unlockUsing(password){
 
-    document.body.innerHTML =
-        '<div id="app"></div>';
+    try{
 
-    document.getElementById =
-        ()=>({value:password});
+        const response = await fetch("index.enc");
+        const payload = await response.json();
 
-    await unlock();
+        const salt = Uint8Array.from(atob(payload.salt), c => c.charCodeAt(0));
+        const iv   = Uint8Array.from(atob(payload.iv),   c => c.charCodeAt(0));
+        const tag  = Uint8Array.from(atob(payload.tag),  c => c.charCodeAt(0));
+        const data = Uint8Array.from(atob(payload.data), c => c.charCodeAt(0));
+
+        const encrypted = new Uint8Array(data.length + tag.length);
+        encrypted.set(data);
+        encrypted.set(tag, data.length);
+
+        const key = await deriveKey(password, salt);
+
+        const decrypted = await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv
+            },
+            key,
+            encrypted
+        );
+
+        document.open();
+        document.write(new TextDecoder().decode(decrypted));
+        document.close();
+
+    }
+    catch(e){
+
+        localStorage.removeItem(STORAGE_KEY);
+
+        showUnlockScreen();
+
+    }
 
 }
