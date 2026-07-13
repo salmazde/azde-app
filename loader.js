@@ -212,9 +212,13 @@ async function unlockUsing(password){
             encrypted
         );
 
-        document.open();
-        document.write(new TextDecoder().decode(decrypted));
-        document.close();
+        const blob = new Blob([html], {
+    type: "text/html"
+});
+
+const url = URL.createObjectURL(blob);
+
+window.location.replace(url);
 
     }
     catch(e){
