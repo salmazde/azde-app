@@ -1,2 +1,0 @@
-# azde-app
-Public Repo
