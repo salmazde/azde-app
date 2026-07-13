@@ -184,33 +184,25 @@ async function unlock(){
 
 }
 
-window.addEventListener(
-    "load",
-    ()=>{
+(function(){
 
-        const saved =
-            localStorage.getItem(
-                STORAGE_KEY
-            );
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-        if(saved){
+    if(saved){
 
-            document.body.innerHTML =
-                '<div id="app"></div>';
+        document.body.innerHTML = '<div id="app"></div>';
 
-            unlockUsing(saved);
-
-        }
-
-        else{
-
-            showUnlockScreen();
-
-        }
+        unlockUsing(saved);
 
     }
-);
 
+    else{
+
+        showUnlockScreen();
+
+    }
+
+})();
 async function unlockUsing(password){
 
     document.body.innerHTML =
