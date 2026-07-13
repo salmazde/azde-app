@@ -83,6 +83,7 @@ async function deriveKey(password, salt){
 }
 
 async function unlock(){
+    console.log("UNLOCK CLICKED");
 
     const password =
         document.getElementById("password").value;
