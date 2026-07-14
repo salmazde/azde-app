@@ -39,7 +39,14 @@ function showUnlockScreen() {
                     Unlock
                 </button>
 
-                <div id="error" style="margin-top:15px;color:#ff4d4d;"></div>
+                <div id="error"></div>
+
+<div class="credits">
+    Crafted with ❤️ by
+    <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
+        Salman Khan
+    </a>
+</div>
 
             </div>
         </div>
