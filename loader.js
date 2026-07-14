@@ -12,12 +12,20 @@ function showUnlockScreen() {
 
                 <p>Enter your access key</p>
 
-                <input
-                    id="password"
-                    type="password"
-                    placeholder="Access Key"
-                    autofocus
-                >
+                <div class="password-box">
+
+    <input
+        id="password"
+        type="password"
+        placeholder="Access Key"
+        autofocus
+    >
+
+    <span id="togglePassword" class="eye">
+        👁️
+    </span>
+
+</div>
 
                 <label class="remember">
                     <input
@@ -38,6 +46,23 @@ function showUnlockScreen() {
     `;
 
     const input = document.getElementById("password");
+    const eye = document.getElementById("togglePassword");
+
+eye.addEventListener("click", () => {
+
+    if (input.type === "password") {
+
+        input.type = "text";
+        eye.innerHTML = "🙈";
+
+    } else {
+
+        input.type = "password";
+        eye.innerHTML = "👁️";
+
+    }
+
+});
 
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
@@ -144,7 +169,10 @@ async function unlock() {
     error.innerHTML = "";
 
     button.disabled = true;
-    button.innerHTML = "Decrypting...";
+    button.innerHTML = `
+<div class="loader"></div>
+Decrypting...
+`;
 
     try {
 
