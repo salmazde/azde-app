@@ -1,11 +1,8 @@
-const CACHE_NAME = "azde-prep-v5";
+const CACHE_NAME = "azde-prep-v6";
 
 const FILES_TO_CACHE = [
-    "./",
     "./manifest.json",
-    "./icon-192.png",
-    "./loader.js",
-    "./index.enc"
+    "./icon-192.png"
 ];
 
 // Install
@@ -61,30 +58,13 @@ self.addEventListener("fetch", event => {
     if (url.origin !== location.origin) return;
 
     // HTML always tries network first
-    if (event.request.mode === "navigate") {
+if (event.request.mode === "navigate") {
 
-        event.respondWith(
+    event.respondWith(fetch(event.request));
 
-            fetch(event.request)
+    return;
 
-                .then(response => {
-
-                    const copy = response.clone();
-
-                    caches.open(CACHE_NAME)
-                        .then(cache => cache.put(event.request, copy));
-
-                    return response;
-
-                })
-
-                .catch(() => caches.match(event.request))
-
-        );
-
-        return;
-
-    }
+}
 
     // Other files: Cache First
     event.respondWith(
