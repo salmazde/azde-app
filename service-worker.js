@@ -1,4 +1,4 @@
-const CACHE_NAME = "azde-prep-v3";
+const CACHE_NAME = "azde-prep-v4";
 
 const FILES_TO_CACHE = [
     "./",
