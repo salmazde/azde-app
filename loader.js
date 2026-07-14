@@ -46,11 +46,19 @@ function showUnlockScreen() {
                 <div id="error"></div>
 
                 <div class="credits">
-                    Crafted with ❤️ by
-                    <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
-                        Salman Khan
-                    </a>
-                </div>
+
+    <div>
+        Crafted with ❤️ by
+        <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
+            Salman Khan
+        </a>
+    </div>
+
+    <div class="version">
+        v1.0.1
+    </div>
+
+</div>
 
             </div>
 
