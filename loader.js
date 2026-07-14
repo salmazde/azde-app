@@ -6,6 +6,7 @@ function showUnlockScreen() {
 
     APP.innerHTML = `
         <div class="unlock-container">
+
             <div class="unlock-card">
 
                 <h1>🔒 Azure Data Engineering Interview Guide</h1>
@@ -14,72 +15,82 @@ function showUnlockScreen() {
 
                 <div class="password-box">
 
-    <input
-        id="password"
-        type="password"
-        placeholder="Access Key"
-        autofocus
-    >
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Access Key"
+                        autofocus
+                    >
 
-    <span id="togglePassword" class="eye">
-        👁️
-    </span>
+                    <span id="togglePassword" class="eye">👁️</span>
 
-</div>
+                </div>
 
                 <label class="remember">
+
                     <input
                         type="checkbox"
                         id="remember"
                     >
+
                     Trust this device
+
                 </label>
 
                 <button id="unlock">
+
                     Unlock
+
                 </button>
 
                 <div id="error"></div>
 
-<div class="credits">
-    Crafted with ❤️ by
-    <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
-        Salman Khan
-    </a>
-</div>
+                <div class="credits">
+                    Crafted with ❤️ by
+                    <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
+                        Salman Khan
+                    </a>
+                </div>
 
             </div>
+
         </div>
     `;
 
     const input = document.getElementById("password");
+
     const eye = document.getElementById("togglePassword");
 
-eye.addEventListener("click", () => {
+    eye.addEventListener("click", () => {
 
-    if (input.type === "password") {
+        if (input.type === "password") {
 
-        input.type = "text";
-        eye.innerHTML = "🙈";
+            input.type = "text";
+            eye.innerHTML = "🙈";
 
-    } else {
+        } else {
 
-        input.type = "password";
-        eye.innerHTML = "👁️";
+            input.type = "password";
+            eye.innerHTML = "👁️";
 
-    }
-
-});
-
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            unlock();
         }
+
+    });
+
+    input.addEventListener("keydown", e => {
+
+        if (e.key === "Enter") {
+
+            unlock();
+
+        }
+
     });
 
     document
         .getElementById("unlock")
         .addEventListener("click", unlock);
+
 }
 
 async function deriveKey(password, salt) {
@@ -115,48 +126,40 @@ async function deriveKey(password, salt) {
 
 async function decryptSite(password) {
 
-    const response = await fetch("index.enc");
+    const response = await fetch("index.enc?ts=" + Date.now());
+
+    if (!response.ok) {
+
+        throw new Error("Unable to load encrypted guide.");
+
+    }
 
     const payload = await response.json();
 
-    const salt = Uint8Array.from(
-        atob(payload.salt),
-        c => c.charCodeAt(0)
-    );
+    const salt = Uint8Array.from(atob(payload.salt), c => c.charCodeAt(0));
 
-    const iv = Uint8Array.from(
-        atob(payload.iv),
-        c => c.charCodeAt(0)
-    );
+    const iv = Uint8Array.from(atob(payload.iv), c => c.charCodeAt(0));
 
-    const tag = Uint8Array.from(
-        atob(payload.tag),
-        c => c.charCodeAt(0)
-    );
+    const tag = Uint8Array.from(atob(payload.tag), c => c.charCodeAt(0));
 
-    const data = Uint8Array.from(
-        atob(payload.data),
-        c => c.charCodeAt(0)
-    );
+    const data = Uint8Array.from(atob(payload.data), c => c.charCodeAt(0));
 
-    const encrypted = new Uint8Array(
-        data.length + tag.length
-    );
+    const encrypted = new Uint8Array(data.length + tag.length);
 
     encrypted.set(data);
+
     encrypted.set(tag, data.length);
 
     const key = await deriveKey(password, salt);
 
-    const decrypted =
-        await crypto.subtle.decrypt(
-            {
-                name: "AES-GCM",
-                iv
-            },
-            key,
-            encrypted
-        );
+    const decrypted = await crypto.subtle.decrypt(
+        {
+            name: "AES-GCM",
+            iv
+        },
+        key,
+        encrypted
+    );
 
     return new TextDecoder().decode(decrypted);
 
@@ -164,31 +167,26 @@ async function decryptSite(password) {
 
 async function unlock() {
 
-    const password =
-        document.getElementById("password").value;
+    const password = document.getElementById("password").value;
 
-    const error =
-        document.getElementById("error");
+    const error = document.getElementById("error");
 
-    const button =
-        document.getElementById("unlock");
+    const button = document.getElementById("unlock");
 
     error.innerHTML = "";
 
     button.disabled = true;
+
     button.innerHTML = `
-<div class="loader"></div>
-Decrypting...
-`;
+        <div class="loader"></div>
+        Decrypting...
+    `;
 
     try {
 
-        const html =
-            await decryptSite(password);
+        const html = await decryptSite(password);
 
-        if (
-            document.getElementById("remember").checked
-        ) {
+        if (document.getElementById("remember").checked) {
 
             localStorage.setItem(
                 STORAGE_KEY,
@@ -204,7 +202,8 @@ Decrypting...
         if ("serviceWorker" in navigator) {
 
             navigator.serviceWorker
-                .register("service-worker.js");
+                .register("service-worker.js")
+                .then(reg => reg.update());
 
         }
 
@@ -213,6 +212,7 @@ Decrypting...
     catch (e) {
 
         button.disabled = false;
+
         button.innerHTML = "Unlock";
 
         error.innerHTML = "❌ Invalid Access Key";
@@ -225,8 +225,7 @@ async function unlockUsing(password) {
 
     try {
 
-        const html =
-            await decryptSite(password);
+        const html = await decryptSite(password);
 
         document.open();
         document.write(html);
@@ -235,7 +234,8 @@ async function unlockUsing(password) {
         if ("serviceWorker" in navigator) {
 
             navigator.serviceWorker
-                .register("service-worker.js");
+                .register("service-worker.js")
+                .then(reg => reg.update());
 
         }
 
@@ -253,8 +253,7 @@ async function unlockUsing(password) {
 
 window.addEventListener("load", async () => {
 
-    const saved =
-        localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
 
     if (saved) {
 
