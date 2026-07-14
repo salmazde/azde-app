@@ -1,63 +1,113 @@
-const CACHE_NAME = "azde-prep-v2";
+const CACHE_NAME = "azde-prep-v3";
+
+const FILES_TO_CACHE = [
+    "./",
+    "./manifest.json",
+    "./icon-192.png",
+    "./loader.js",
+    "./index.enc"
+];
 
 // Install
-self.addEventListener("install", (event) => {
+self.addEventListener("install", event => {
+
     self.skipWaiting();
+
+    event.waitUntil(
+
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(FILES_TO_CACHE))
+
+    );
+
 });
 
 // Activate
-self.addEventListener("activate", (event) => {
-    event.waitUntil(self.clients.claim());
+self.addEventListener("activate", event => {
+
+    event.waitUntil(
+
+        caches.keys().then(keys => {
+
+            return Promise.all(
+
+                keys.map(key => {
+
+                    if (key !== CACHE_NAME) {
+
+                        return caches.delete(key);
+
+                    }
+
+                })
+
+            );
+
+        })
+
+    );
+
+    self.clients.claim();
+
 });
 
-// Fetch
-self.addEventListener("fetch", (event) => {
+// Network First for HTML
+self.addEventListener("fetch", event => {
 
     if (event.request.method !== "GET") return;
 
     const url = new URL(event.request.url);
 
-    // Ignore Chrome extensions, wallets, etc.
-    if (url.origin !== self.location.origin) return;
+    if (url.origin !== location.origin) return;
 
+    // HTML always tries network first
+    if (event.request.mode === "navigate") {
+
+        event.respondWith(
+
+            fetch(event.request)
+
+                .then(response => {
+
+                    const copy = response.clone();
+
+                    caches.open(CACHE_NAME)
+                        .then(cache => cache.put(event.request, copy));
+
+                    return response;
+
+                })
+
+                .catch(() => caches.match(event.request))
+
+        );
+
+        return;
+
+    }
+
+    // Other files: Cache First
     event.respondWith(
 
-        caches.match(event.request).then(async (cached) => {
+        caches.match(event.request)
 
-            // Serve from cache
-            if (cached) {
-                return cached;
-            }
+            .then(cached => {
 
-            try {
+                return cached || fetch(event.request)
 
-                const response = await fetch(event.request);
+                    .then(response => {
 
-                // Cache only successful responses
-                if (response.ok) {
+                        const copy = response.clone();
 
-                    const cache = await caches.open(CACHE_NAME);
+                        caches.open(CACHE_NAME)
 
-                    cache.put(event.request, response.clone());
+                            .then(cache => cache.put(event.request, copy));
 
-                }
+                        return response;
 
-                return response;
+                    });
 
-            } catch (err) {
-
-                // Offline fallback
-                if (event.request.mode === "navigate") {
-
-                    return caches.match("/azdeinterview/index.html");
-
-                }
-
-                throw err;
-
-            }
-
-        })
+            })
 
     );
 
