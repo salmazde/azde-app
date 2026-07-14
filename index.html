@@ -139,6 +139,38 @@ body{
 
 }
 
+.password-box{
+
+    position:relative;
+
+}
+
+.password-box input{
+
+    width:100%;
+
+    padding:14px 45px 14px 15px;
+
+}
+
+.eye{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    user-select:none;
+
+}
+
 #password:focus{
 
     border-color:#2563eb;
@@ -188,6 +220,38 @@ body{
     font-weight:600;
 
     transition:.25s;
+
+}
+
+.loader{
+
+    width:18px;
+
+    height:18px;
+
+    border:3px solid rgba(255,255,255,.4);
+
+    border-top-color:white;
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+    display:inline-block;
+
+    margin-right:10px;
+
+    vertical-align:middle;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
 
 }
 
