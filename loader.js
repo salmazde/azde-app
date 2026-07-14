@@ -1,363 +1,427 @@
-const APP = document.getElementById("app");
+<!DOCTYPE html>
+<html lang="en">
 
-const STORAGE_KEY = "azde_app_trusted_device";
+<head>
 
-function showUnlockScreen() {
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Data Engineering Interview Guide</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#0F2D4E">
 
-    APP.innerHTML = `
-        <div class="unlock-container">
+<style>
 
-            <div class="unlock-card">
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-                <h1>
-                    🔒 Azure Data Engineering<br>
-                    Interview Guide
-                </h1>
+html,
+body{
 
-                <p>Secure access required</p>
+    margin:0;
+    min-height:100vh;
 
-                <div class="password-box">
+    font-family:'Segoe UI',system-ui,sans-serif;
 
-                    <input
-                        id="password"
-                        type="password"
-                        placeholder="Enter Access Key"
-                        autofocus
-                    >
+    background:
+        radial-gradient(circle at top right,
+        rgba(66,165,245,.15),
+        transparent 30%),
 
-                    <span id="togglePassword" class="eye">
+        radial-gradient(circle at bottom left,
+        rgba(21,101,192,.18),
+        transparent 35%),
 
-<svg id="eyeOpen"
-     xmlns="http://www.w3.org/2000/svg"
-     width="20"
-     height="20"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="currentColor"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round">
-
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-
-    <circle cx="12" cy="12" r="3"/>
-
-</svg>
-
-<svg id="eyeClosed"
-     xmlns="http://www.w3.org/2000/svg"
-     width="20"
-     height="20"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="currentColor"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round"
-     style="display:none;">
-
-    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.86 21.86 0 0 1 5.08-7.06"/>
-
-    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.86 21.86 0 0 1-4.35 5.94"/>
-
-    <path d="M1 1l22 22"/>
-
-    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>
-
-</svg>
-
-</span>
-
-                </div>
-
-                <label class="remember">
-
-                    <input
-                        type="checkbox"
-                        id="remember"
-                    >
-
-                    Trust this device
-
-                </label>
-
-                <button id="unlock">
-
-                    Unlock
-
-                </button>
-
-                <div id="error"></div>
-
-                <div class="credits">
-
-    <div>
-        Crafted with ❤️ by
-        <a href="https://www.linkedin.com/in/salman-khan-p/" target="_blank">
-            Salman Khan
-        </a>
-    </div>
-
-    <div class="version">
-    ${window.APP_VERSION}
-</div>
-
-</div>
-
-            </div>
-
-        </div>
-    `;
-
-    const input = document.getElementById("password");
-
-    const eye = document.getElementById("togglePassword");
-
-    eye.addEventListener("click", () => {
-
-    const eyeOpen = document.getElementById("eyeOpen");
-    const eyeClosed = document.getElementById("eyeClosed");
-
-    if (input.type === "password") {
-
-        input.type = "text";
-
-        eyeOpen.style.display = "none";
-        eyeClosed.style.display = "block";
-
-    } else {
-
-        input.type = "password";
-
-        eyeOpen.style.display = "block";
-        eyeClosed.style.display = "none";
-
-    }
-
-});
-
-    input.addEventListener("keydown", e => {
-
-        if (e.key === "Enter") {
-
-            unlock();
-
-        }
-
-    });
-
-    document
-        .getElementById("unlock")
-        .addEventListener("click", unlock);
+        linear-gradient(
+            135deg,
+            #0F2D4E 0%,
+            #173E67 45%,
+            #1565C0 100%
+        );
 
 }
 
-async function deriveKey(password, salt) {
+#app{
+    width:100%;
+    height:100%;
+}
 
-    const enc = new TextEncoder();
+/* ---------- Background ---------- */
 
-    const keyMaterial =
-        await crypto.subtle.importKey(
-            "raw",
-            enc.encode(password),
-            { name: "PBKDF2" },
-            false,
-            ["deriveKey"]
-        );
+.unlock-container{
 
-    return crypto.subtle.deriveKey(
-        {
-            name: "PBKDF2",
-            salt,
-            iterations: 100000,
-            hash: "SHA-256"
-        },
-        keyMaterial,
-        {
-            name: "AES-GCM",
-            length: 256
-        },
-        false,
-        ["decrypt"]
-    );
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-height:100vh;
+
+    padding:30px;
 
 }
 
-async function decryptSite(password) {
+/* ---------- Card ---------- */
+.unlock-card{
 
-    const page =
-        location.pathname
-            .split("/")
-            .pop()
-            .replace(".html", "");
+    width:480px;
 
-    const encFile =
-        page === "" || page === "index"
-            ? "index.enc"
-            : page + ".enc";
+    background:rgba(22,27,34,.92);
 
-    const response =
-        await fetch(encFile + "?ts=" + Date.now());
+    backdrop-filter:blur(18px);
 
-    if (!response.ok) {
+    border-radius:20px;
 
-        throw new Error("Unable to load encrypted guide.");
+    padding:40px;
 
-    }
+    border:1px solid rgba(255,255,255,.08);
 
-    const payload =
-        await response.json();
+    box-shadow:
 
-    const salt =
-        Uint8Array.from(
-            atob(payload.salt),
-            c => c.charCodeAt(0)
-        );
-
-    const iv =
-        Uint8Array.from(
-            atob(payload.iv),
-            c => c.charCodeAt(0)
-        );
-
-    const tag =
-        Uint8Array.from(
-            atob(payload.tag),
-            c => c.charCodeAt(0)
-        );
-
-    const data =
-        Uint8Array.from(
-            atob(payload.data),
-            c => c.charCodeAt(0)
-        );
-
-    const encrypted =
-        new Uint8Array(
-            data.length + tag.length
-        );
-
-    encrypted.set(data);
-
-    encrypted.set(tag, data.length);
-
-    const key =
-        await deriveKey(password, salt);
-
-    const decrypted =
-        await crypto.subtle.decrypt(
-            {
-                name: "AES-GCM",
-                iv
-            },
-            key,
-            encrypted
-        );
-
-    return new TextDecoder().decode(decrypted);
+        0 25px 70px rgba(0,0,0,.45);
 
 }
 
-async function unlock() {
 
-    const password = document.getElementById("password").value;
+/* ---------- Animation ---------- */
 
-    const error = document.getElementById("error");
+@keyframes pop{
 
-    const button = document.getElementById("unlock");
+    from{
 
-    error.innerHTML = "";
+        opacity:0;
 
-    button.disabled = true;
-
-    button.innerHTML = `
-        <div class="loader"></div>
-        Decrypting...
-    `;
-
-    try {
-
-        const html = await decryptSite(password);
-
-        if (document.getElementById("remember").checked) {
-
-            localStorage.setItem(
-                STORAGE_KEY,
-                password
-            );
-
-        }
-
-        document.open();
-        document.write(html);
-        document.close();
-
-        if ("serviceWorker" in navigator) {
-
-            navigator.serviceWorker
-                .register("service-worker.js")
-                .then(reg => reg.update());
-
-        }
+        transform:translateY(20px) scale(.95);
 
     }
 
-    catch (e) {
+    to{
 
-        button.disabled = false;
+        opacity:1;
 
-        button.innerHTML = "Unlock";
-
-        error.innerHTML = "❌ Invalid Access Key";
+        transform:none;
 
     }
 
 }
 
-async function unlockUsing(password) {
+/* ---------- Heading ---------- */
 
-    try {
+.unlock-card h1{
 
-        const html = await decryptSite(password);
+    font-size:26px;
+    line-height:1.25;
+    font-weight:800;
+    margin-bottom:10px;
 
-        document.open();
-        document.write(html);
-        document.close();
+}
 
-        if ("serviceWorker" in navigator) {
+.unlock-card p{
 
-            navigator.serviceWorker
-                .register("service-worker.js")
-                .then(reg => reg.update());
+    color:#8B949E;
 
-        }
+    font-size:15px;
 
-    }
+    margin-bottom:24px;
 
-    catch (e) {
+}
 
-        localStorage.removeItem(STORAGE_KEY);
+/* ---------- Input ---------- */
 
-        showUnlockScreen();
+#password{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.2s;
+
+}
+
+.password-box{
+
+    position:relative;
+
+    margin-bottom:18px;
+
+}
+
+.password-box input{
+
+    width:100%;
+
+    padding:18px 54px 18px 18px;
+
+    border-radius:12px;
+
+    background:#0D1117;
+
+    border:1px solid #30363D;
+
+    color:#E6EDF3;
+
+    font-size:16px;
+
+    outline:none;
+
+    transition:.25s;
+
+}
+
+.eye{
+
+    position:absolute;
+
+    right:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    color:#8B949E;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    transition:.25s;
+
+}
+
+.eye:hover{
+
+    color:#64B5F6;
+
+    transform:translateY(-50%) scale(1.1);
+
+}
+
+.eye svg{
+
+    display:block;
+
+}
+
+.password-box input:focus{
+
+    border-color:#64B5F6;
+
+    box-shadow:
+
+        0 0 0 4px rgba(100,181,246,.18);
+
+}
+/* ---------- Remember ---------- */
+
+.remember{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:18px 0 24px;
+
+    color:#8B949E;
+
+    font-size:14px;
+
+}
+
+/* ---------- Button ---------- */
+
+#unlock{
+
+    width:100%;
+
+    border:none;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    background:#1565C0;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+    background:
+        linear-gradient(
+            135deg,
+            #2563EB,
+            #1D4ED8
+        );
+
+}
+
+.loader{
+
+    width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    border:2px solid rgba(255,255,255,.3);
+
+    border-top:2px solid white;
+
+    display:inline-block;
+
+    animation:spin .8s linear infinite;
+
+    margin-right:10px;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
 
     }
 
 }
 
-window.addEventListener("load", async () => {
+@keyframes spin{
 
-    const saved = localStorage.getItem(STORAGE_KEY);
+    to{
 
-    if (saved) {
-
-        await unlockUsing(saved);
+        transform:rotate(360deg);
 
     }
 
-    else {
+}
 
-        showUnlockScreen();
+#unlock:hover{
 
-    }
+    background:
+        linear-gradient(
+            135deg,
+            #3B82F6,
+            #2563EB
+        );
 
-});
+    transform:translateY(-2px);
+
+    box-shadow:
+
+        0 10px 30px rgba(21,101,192,.35);
+
+}
+
+#unlock:disabled{
+
+    background:#8aaef7;
+
+    cursor:not-allowed;
+
+}
+
+/* ---------- Error ---------- */
+
+#error{
+
+    margin-top:18px;
+
+    color:#dc2626;
+
+    text-align:center;
+
+    font-weight:600;
+
+}
+
+/* ---------- Credits ---------- */
+
+.credits{
+
+    margin-top:28px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+     color:#8B949E;
+
+    font-size:13px;
+
+}
+
+.credits a{
+
+    color:#64B5F6;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.credits a:hover{
+
+    text-decoration:underline;
+
+}
+
+.version{
+
+    background:#2563EB;
+
+    padding:6px 14px;
+
+    border-radius:999px;
+
+    font-weight:700;
+
+    letter-spacing:.4px;
+
+    box-shadow:
+        0 8px 20px rgba(37,99,235,.35);
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="app"></div>
+
+<script>
+    window.APP_VERSION = "v__APP_VERSION__";
+    
+</script>
+
+<script src="loader.js"></script>
+
+</body>
+
+</html>
