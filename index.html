@@ -17,24 +17,207 @@
 
 <style>
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 html,
 body{
-
-    margin:0;
-
-    padding:0;
-
+    width:100%;
     height:100%;
-
-    background:#0F172A;
-
-    font-family:Arial,sans-serif;
-
+    overflow:hidden;
+    font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
+    background:#081420;
 }
 
 #app{
-
+    width:100%;
     height:100%;
+}
+
+/* ---------- Background ---------- */
+
+.unlock-container{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+    linear-gradient(135deg,#0F172A,#153A66);
+
+    backdrop-filter:blur(16px);
+
+}
+
+/* ---------- Card ---------- */
+
+.unlock-card{
+
+    width:430px;
+
+    background:#ffffff;
+
+    border-radius:18px;
+
+    padding:40px;
+
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.35);
+
+    animation:pop .35s ease;
+
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes pop{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px) scale(.95);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+/* ---------- Heading ---------- */
+
+.unlock-card h1{
+
+    font-size:27px;
+
+    margin-bottom:10px;
+
+    color:#143A63;
+
+}
+
+.unlock-card p{
+
+    color:#666;
+
+    margin-bottom:24px;
+
+}
+
+/* ---------- Input ---------- */
+
+#password{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.2s;
+
+}
+
+#password:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+
+}
+
+/* ---------- Remember ---------- */
+
+.remember{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:18px 0 24px;
+
+    font-size:14px;
+
+    color:#555;
+
+}
+
+/* ---------- Button ---------- */
+
+#unlock{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:14px;
+
+    cursor:pointer;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+#unlock:hover{
+
+    transform:translateY(-2px);
+
+    background:#1d4ed8;
+
+}
+
+#unlock:disabled{
+
+    background:#8aaef7;
+
+    cursor:not-allowed;
+
+}
+
+/* ---------- Error ---------- */
+
+#error{
+
+    margin-top:18px;
+
+    color:#dc2626;
+
+    text-align:center;
+
+    font-weight:600;
 
 }
 
