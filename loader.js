@@ -6,51 +6,51 @@ function showUnlockScreen() {
 
     APP.innerHTML = `
         <div class="unlock-container">
-
             <div class="unlock-card">
 
                 <h1>🔒 Azure Data Engineering Interview Guide</h1>
 
-                <p>
-                    Enter your access key
-                </p>
+                <p>Enter your access key</p>
 
                 <input
                     id="password"
                     type="password"
                     placeholder="Access Key"
+                    autofocus
                 >
 
                 <label class="remember">
-
                     <input
                         type="checkbox"
                         id="remember"
                     >
-
                     Trust this device
-
                 </label>
 
                 <button id="unlock">
-
                     Unlock
-
                 </button>
 
-                <div id="error"></div>
+                <div id="error" style="margin-top:15px;color:#ff4d4d;"></div>
 
             </div>
-
         </div>
     `;
+
+    const input = document.getElementById("password");
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            unlock();
+        }
+    });
 
     document
         .getElementById("unlock")
         .addEventListener("click", unlock);
 }
 
-async function deriveKey(password, salt){
+async function deriveKey(password, salt) {
 
     const enc = new TextEncoder();
 
@@ -67,13 +67,13 @@ async function deriveKey(password, salt){
         {
             name: "PBKDF2",
             salt,
-            iterations:100000,
-            hash:"SHA-256"
+            iterations: 100000,
+            hash: "SHA-256"
         },
         keyMaterial,
         {
-            name:"AES-GCM",
-            length:256
+            name: "AES-GCM",
+            length: 256
         },
         false,
         ["decrypt"]
@@ -81,81 +81,79 @@ async function deriveKey(password, salt){
 
 }
 
-async function unlock(){
+async function decryptSite(password) {
+
+    const response = await fetch("index.enc");
+
+    const payload = await response.json();
+
+    const salt = Uint8Array.from(
+        atob(payload.salt),
+        c => c.charCodeAt(0)
+    );
+
+    const iv = Uint8Array.from(
+        atob(payload.iv),
+        c => c.charCodeAt(0)
+    );
+
+    const tag = Uint8Array.from(
+        atob(payload.tag),
+        c => c.charCodeAt(0)
+    );
+
+    const data = Uint8Array.from(
+        atob(payload.data),
+        c => c.charCodeAt(0)
+    );
+
+    const encrypted = new Uint8Array(
+        data.length + tag.length
+    );
+
+    encrypted.set(data);
+    encrypted.set(tag, data.length);
+
+    const key = await deriveKey(password, salt);
+
+    const decrypted =
+        await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv
+            },
+            key,
+            encrypted
+        );
+
+    return new TextDecoder().decode(decrypted);
+
+}
+
+async function unlock() {
 
     const password =
         document.getElementById("password").value;
 
-    try{
+    const error =
+        document.getElementById("error");
 
-        const response =
-            await fetch("index.enc");
+    const button =
+        document.getElementById("unlock");
 
-        const payload =
-            await response.json();
+    error.innerHTML = "";
 
-        const salt =
-            Uint8Array.from(
-                atob(payload.salt),
-                c=>c.charCodeAt(0)
-            );
+    button.disabled = true;
+    button.innerHTML = "Decrypting...";
 
-        const iv =
-            Uint8Array.from(
-                atob(payload.iv),
-                c=>c.charCodeAt(0)
-            );
-
-        const tag =
-            Uint8Array.from(
-                atob(payload.tag),
-                c=>c.charCodeAt(0)
-            );
-
-        const data =
-            Uint8Array.from(
-                atob(payload.data),
-                c=>c.charCodeAt(0)
-            );
-
-        const encrypted =
-            new Uint8Array(
-                data.length + tag.length
-            );
-
-        encrypted.set(data);
-
-        encrypted.set(
-            tag,
-            data.length
-        );
-
-        const key =
-            await deriveKey(
-                password,
-                salt
-            );
-
-        const decrypted =
-            await crypto.subtle.decrypt(
-                {
-                    name:"AES-GCM",
-                    iv
-                },
-                key,
-                encrypted
-            );
+    try {
 
         const html =
-            new TextDecoder().decode(
-                decrypted
-            );
+            await decryptSite(password);
 
-        if(
-            document
-                .getElementById("remember")
-                .checked
-        ){
+        if (
+            document.getElementById("remember").checked
+        ) {
 
             localStorage.setItem(
                 STORAGE_KEY,
@@ -165,59 +163,74 @@ async function unlock(){
         }
 
         document.open();
-
         document.write(html);
-
         document.close();
 
+        if ("serviceWorker" in navigator) {
+
+            navigator.serviceWorker
+                .register("service-worker.js");
+
+        }
+
     }
 
-    catch(e){
+    catch (e) {
 
-        document
-            .getElementById("error")
-            .innerHTML =
-            "Invalid Access Key";
+        button.disabled = false;
+        button.innerHTML = "Unlock";
+
+        error.innerHTML = "❌ Invalid Access Key";
 
     }
 
 }
 
-window.addEventListener(
-    "load",
-    ()=>{
+async function unlockUsing(password) {
 
-        const saved =
-            localStorage.getItem(
-                STORAGE_KEY
-            );
+    try {
 
-        if(saved){
+        const html =
+            await decryptSite(password);
 
-            document.body.innerHTML =
-                '<div id="app"></div>';
+        document.open();
+        document.write(html);
+        document.close();
 
-            unlockUsing(saved);
+        if ("serviceWorker" in navigator) {
 
-        }
-
-        else{
-
-            showUnlockScreen();
+            navigator.serviceWorker
+                .register("service-worker.js");
 
         }
 
     }
-);
 
-async function unlockUsing(password){
+    catch (e) {
 
-    document.body.innerHTML =
-        '<div id="app"></div>';
+        localStorage.removeItem(STORAGE_KEY);
 
-    document.getElementById =
-        ()=>({value:password});
+        showUnlockScreen();
 
-    await unlock();
+    }
 
 }
+
+window.addEventListener("load", async () => {
+
+    const saved =
+        localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+
+        await unlockUsing(saved);
+
+    }
+
+    else {
+
+        showUnlockScreen();
+
+    }
+
+});
