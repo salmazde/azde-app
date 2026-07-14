@@ -25,7 +25,48 @@ function showUnlockScreen() {
                         autofocus
                     >
 
-                    <span id="togglePassword" class="eye">👁️</span>
+                    <span id="togglePassword" class="eye">
+
+<svg id="eyeOpen"
+     xmlns="http://www.w3.org/2000/svg"
+     width="20"
+     height="20"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+
+    <circle cx="12" cy="12" r="3"/>
+
+</svg>
+
+<svg id="eyeClosed"
+     xmlns="http://www.w3.org/2000/svg"
+     width="20"
+     height="20"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     style="display:none;">
+
+    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.86 21.86 0 0 1 5.08-7.06"/>
+
+    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.86 21.86 0 0 1-4.35 5.94"/>
+
+    <path d="M1 1l22 22"/>
+
+    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>
+
+</svg>
+
+</span>
 
                 </div>
 
@@ -74,19 +115,26 @@ function showUnlockScreen() {
 
     eye.addEventListener("click", () => {
 
-        if (input.type === "password") {
+    const eyeOpen = document.getElementById("eyeOpen");
+    const eyeClosed = document.getElementById("eyeClosed");
 
-            input.type = "text";
-            eye.innerHTML = "🙈";
+    if (input.type === "password") {
 
-        } else {
+        input.type = "text";
 
-            input.type = "password";
-            eye.innerHTML = "👁️";
+        eyeOpen.style.display = "none";
+        eyeClosed.style.display = "block";
 
-        }
+    } else {
 
-    });
+        input.type = "password";
+
+        eyeOpen.style.display = "block";
+        eyeClosed.style.display = "none";
+
+    }
+
+});
 
     input.addEventListener("keydown", e => {
 
