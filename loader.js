@@ -9,16 +9,19 @@ function showUnlockScreen() {
 
             <div class="unlock-card">
 
-                <h1>🔒 Azure Data Engineering Interview Guide</h1>
+                <h1>
+                    🔒 Azure Data Engineering<br>
+                    Interview Guide
+                </h1>
 
-                <p>Enter your access key</p>
+                <p>Secure access required</p>
 
                 <div class="password-box">
 
                     <input
                         id="password"
                         type="password"
-                        placeholder="Access Key"
+                        placeholder="Enter Access Key"
                         autofocus
                     >
 
