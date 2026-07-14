@@ -20,11 +20,28 @@
 
 html,
 body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
-    background:#081420;
+
+    margin:0;
+    min-height:100vh;
+
+    font-family:'Segoe UI',system-ui,sans-serif;
+
+    background:
+        radial-gradient(circle at top right,
+        rgba(66,165,245,.15),
+        transparent 30%),
+
+        radial-gradient(circle at bottom left,
+        rgba(21,101,192,.18),
+        transparent 35%),
+
+        linear-gradient(
+            135deg,
+            #0F2D4E 0%,
+            #173E67 45%,
+            #1565C0 100%
+        );
+
 }
 
 #app{
@@ -36,39 +53,36 @@ body{
 
 .unlock-container{
 
-    position:fixed;
-
-    inset:0;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
 
-    background:
-    linear-gradient(135deg,#0F172A,#153A66);
+    min-height:100vh;
 
-    backdrop-filter:blur(16px);
+    padding:30px;
 
 }
 
 /* ---------- Card ---------- */
-
 .unlock-card{
 
-    width:430px;
+    width:460px;
 
-    background:#ffffff;
+    background:rgba(22,27,34,.92);
 
-    border-radius:18px;
+    backdrop-filter:blur(18px);
+
+    border-radius:20px;
 
     padding:40px;
 
-    box-shadow:
-        0 30px 70px rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.08);
 
-    animation:pop .35s ease;
+    box-shadow:
+
+        0 25px 70px rgba(0,0,0,.45);
 
 }
 
@@ -98,17 +112,23 @@ body{
 
 .unlock-card h1{
 
-    font-size:27px;
+    color:#E6EDF3;
+
+    font-size:35px;
+
+    font-weight:800;
 
     margin-bottom:10px;
 
-    color:#143A63;
+    line-height:1.2;
 
 }
 
 .unlock-card p{
 
-    color:#666;
+    color:#8B949E;
+
+    font-size:15px;
 
     margin-bottom:24px;
 
@@ -138,13 +158,29 @@ body{
 
     position:relative;
 
+    margin-bottom:18px;
+
 }
 
 .password-box input{
 
     width:100%;
 
-    padding:14px 45px 14px 15px;
+    padding:16px 52px 16px 18px;
+
+    border-radius:12px;
+
+    background:#0D1117;
+
+    border:1px solid #30363D;
+
+    color:#E6EDF3;
+
+    font-size:16px;
+
+    outline:none;
+
+    transition:.25s;
 
 }
 
@@ -152,28 +188,37 @@ body{
 
     position:absolute;
 
-    right:15px;
-
     top:50%;
+
+    right:18px;
 
     transform:translateY(-50%);
 
     cursor:pointer;
 
-    font-size:18px;
+    color:#90CAF9;
 
-    user-select:none;
+    font-size:20px;
 
-}
-
-#password:focus{
-
-    border-color:#2563eb;
-
-    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+    transition:.2s;
 
 }
 
+.eye:hover{
+
+    transform:translateY(-50%) scale(1.15);
+
+}
+
+.password-box input:focus{
+
+    border-color:#64B5F6;
+
+    box-shadow:
+
+        0 0 0 4px rgba(100,181,246,.18);
+
+}
 /* ---------- Remember ---------- */
 
 .remember{
@@ -186,9 +231,9 @@ body{
 
     margin:18px 0 24px;
 
-    font-size:14px;
+    color:#8B949E;
 
-    color:#555;
+    font-size:14px;
 
 }
 
@@ -200,19 +245,19 @@ body{
 
     border:none;
 
-    border-radius:10px;
+    padding:15px;
 
-    padding:14px;
+    border-radius:12px;
 
-    cursor:pointer;
-
-    background:#2563eb;
+    background:#1565C0;
 
     color:white;
 
-    font-size:15px;
+    font-size:17px;
 
-    font-weight:600;
+    font-weight:700;
+
+    cursor:pointer;
 
     transition:.25s;
 
@@ -224,19 +269,27 @@ body{
 
     height:18px;
 
-    border:3px solid rgba(255,255,255,.4);
-
-    border-top-color:white;
-
     border-radius:50%;
 
-    animation:spin .8s linear infinite;
+    border:2px solid rgba(255,255,255,.3);
+
+    border-top:2px solid white;
 
     display:inline-block;
 
+    animation:spin .8s linear infinite;
+
     margin-right:10px;
 
-    vertical-align:middle;
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
 
 }
 
@@ -252,9 +305,13 @@ body{
 
 #unlock:hover{
 
+    background:#1976D2;
+
     transform:translateY(-2px);
 
-    background:#1d4ed8;
+    box-shadow:
+
+        0 10px 30px rgba(21,101,192,.35);
 
 }
 
@@ -284,7 +341,7 @@ body{
 
 .credits{
 
-    margin-top:22px;
+    margin-top:28px;
 
     display:flex;
 
@@ -292,15 +349,15 @@ body{
 
     align-items:center;
 
-    font-size:12px;
+    color:#8B949E;
 
-    color:#777;
+    font-size:13px;
 
 }
 
 .credits a{
 
-    color:#2563eb;
+    color:#64B5F6;
 
     text-decoration:none;
 
@@ -316,21 +373,21 @@ body{
 
 .version{
 
-    padding:4px 10px;
+    background:#1565C0;
 
-    border-radius:20px;
+    color:white;
 
-    background:#2563eb;
+    border-radius:999px;
 
-    color:#fff;
+    padding:5px 12px;
 
-    font-size:11px;
+    font-size:12px;
 
     font-weight:700;
 
-    letter-spacing:.5px;
+    box-shadow:
 
-    box-shadow:0 2px 8px rgba(37,99,235,.3);
+        0 8px 18px rgba(21,101,192,.35);
 
 }
 
