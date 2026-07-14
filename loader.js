@@ -134,7 +134,19 @@ async function deriveKey(password, salt) {
 
 async function decryptSite(password) {
 
-    const response = await fetch("index.enc?ts=" + Date.now());
+    const page =
+        location.pathname
+            .split("/")
+            .pop()
+            .replace(".html", "");
+
+    const encFile =
+        page === "" || page === "index"
+            ? "index.enc"
+            : page + ".enc";
+
+    const response =
+        await fetch(encFile + "?ts=" + Date.now());
 
     if (!response.ok) {
 
@@ -142,32 +154,54 @@ async function decryptSite(password) {
 
     }
 
-    const payload = await response.json();
+    const payload =
+        await response.json();
 
-    const salt = Uint8Array.from(atob(payload.salt), c => c.charCodeAt(0));
+    const salt =
+        Uint8Array.from(
+            atob(payload.salt),
+            c => c.charCodeAt(0)
+        );
 
-    const iv = Uint8Array.from(atob(payload.iv), c => c.charCodeAt(0));
+    const iv =
+        Uint8Array.from(
+            atob(payload.iv),
+            c => c.charCodeAt(0)
+        );
 
-    const tag = Uint8Array.from(atob(payload.tag), c => c.charCodeAt(0));
+    const tag =
+        Uint8Array.from(
+            atob(payload.tag),
+            c => c.charCodeAt(0)
+        );
 
-    const data = Uint8Array.from(atob(payload.data), c => c.charCodeAt(0));
+    const data =
+        Uint8Array.from(
+            atob(payload.data),
+            c => c.charCodeAt(0)
+        );
 
-    const encrypted = new Uint8Array(data.length + tag.length);
+    const encrypted =
+        new Uint8Array(
+            data.length + tag.length
+        );
 
     encrypted.set(data);
 
     encrypted.set(tag, data.length);
 
-    const key = await deriveKey(password, salt);
+    const key =
+        await deriveKey(password, salt);
 
-    const decrypted = await crypto.subtle.decrypt(
-        {
-            name: "AES-GCM",
-            iv
-        },
-        key,
-        encrypted
-    );
+    const decrypted =
+        await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv
+            },
+            key,
+            encrypted
+        );
 
     return new TextDecoder().decode(decrypted);
 
