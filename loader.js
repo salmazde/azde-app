@@ -1,6 +1,6 @@
 const APP = document.getElementById("app");
 
-const STORAGE_KEY = "azde_trusted_device";
+const STORAGE_KEY = "azde_app_trusted_device";
 
 function showUnlockScreen() {
 
