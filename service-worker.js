@@ -1,4 +1,4 @@
-const CACHE_NAME = "azde-prep-v9.011";
+const CACHE_NAME = "azde-prep-v9.012";
 
 const FILES_TO_CACHE = [
     "./manifest.json",
