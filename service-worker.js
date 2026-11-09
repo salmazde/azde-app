@@ -7,7 +7,6 @@ const FILES_TO_CACHE = [
 
 // Install
 self.addEventListener("install", event => {
-
     self.skipWaiting();
 
     event.waitUntil(
